@@ -1,0 +1,47 @@
+<body>
+  <div>
+    <label>Base ID: <input id="base" type="number" min="0" max="1023" value="0"></label><br>
+    <label>Color: <input id="color" type="number" min="0" max="1023" value="0"></label><br>
+    <label>Durability: <input id="durability" type="number" min="0" max="1023" value="0"></label><br>
+    <label>Variant: <input id="variant" type="number" min="0" max="1023" value="0"></label>
+  </div>
+
+  <p id="error">All values are within the safe 0-1023 range.</p>
+  <p><strong>Final ID:</strong> <span id="final">0</span></p>
+
+  <script>
+    const ids = ["base", "color", "durability", "variant"];
+    const errorText = "Entering more than 1023 will overflow into the next value and interfere with it while not adding more to this one, entering exactly 1024 will set this value to 0 and increase the next value by one by the games logic.";
+
+    function generate() {
+      const vals = ids.map(id => Number(document.getElementById(id).value));
+      const error = document.getElementById("error");
+
+      if (vals.some(v => v < 0 || v > 1023 || !Number.isInteger(v))) {
+        error.textContent = errorText;
+        document.getElementById("final").textContent = "-";
+        return;
+      }
+
+      error.textContent = "All values are within the safe 0–1023 range.";
+      document.getElementById("final").textContent = (vals[0] + vals[1] * 1024 + vals[2] * 1048576 + vals[3] * 1073741824).toString();
+    }
+
+    function decode() {
+      const n = Number(document.getElementById("decode").value);
+      if (!Number.isSafeInteger(n) || n < 0 || n > 1099511627775) {
+        ["dBase", "dColor", "dDurability", "dVariant"].forEach(id => document.getElementById(id).textContent = "-");
+        return;
+      }
+
+      document.getElementById("dBase").textContent = (n % 1024).toString();
+      document.getElementById("dColor").textContent = (Math.floor(n / 1024) % 1024).toString();
+      document.getElementById("dDurability").textContent = (Math.floor(n / 1048576) % 1024).toString();
+      document.getElementById("dVariant").textContent = Math.floor(n / 1073741824).toString();
+    }
+
+    ids.forEach(id => document.getElementById(id).addEventListener("input", generate));
+    document.getElementById("decode").addEventListener("input", decode);
+  </script>
+</body>
+</html>
